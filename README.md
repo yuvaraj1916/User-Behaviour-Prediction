@@ -52,14 +52,14 @@ User-Behaviour-Prediction/
 ├── requirements.txt
 ├── README.md
 │
-├── datasets/
+├── Datasets/
 │   ├── olist_orders_dataset.csv
 │   └── olist_order_reviews_dataset.csv
 │
 ├── templates/
 │   └── index.html
 │
-├── screenshots/
+├── Output Screenshort/
 │   ├── Home.png
 │   ├── Inputs.png
 │   └── Prediction.png
