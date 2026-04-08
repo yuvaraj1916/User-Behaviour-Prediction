@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Behavior Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI';
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            margin: 0;
+        }
+
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        /* INPUT STYLING */
+        input, select {
+            width: 100%;
+            height: 45px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            padding: 10px;
+
+            background: rgba(255,255,255,0.9);  /* light background */
+            color: #000;                        /* black text */
+            font-weight: 600;                  /* semi-bold */
+
+            appearance: none;
+        }
+
+        /* Placeholder styling */
+        input::placeholder {
+            color: #888;
+            font-weight: 400;
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background: linear-gradient(45deg, #ff006e, #ffbe0b);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #3a86ff, #00c6ff);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            margin-top: 20px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .section {
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+
+        /* Progress bar */
+        .progress {
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            background: linear-gradient(90deg, red, yellow, green);
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="container">
+
+    <h2>🧠 AI Customer Dashboard</h2>
+
+    <form action="/predict" method="POST">
+
+        <input type="number" name="payment_value" placeholder="Payment Value"
+               value="{{ payment_value or '' }}" required>
+
+        <input type="number" name="price" placeholder="Product Price"
+               value="{{ price or '' }}" required>
+
+        <input type="number" name="delivery_time" placeholder="Delivery Time (days)"
+               value="{{ delivery_time or '' }}" required>
+
+        <input type="number" name="delivery_delay" placeholder="Delivery Delay (days)"
+               value="{{ delivery_delay or '' }}" required>
+
+        <select name="fast_delivery">
+            <option value="1" {% if fast_delivery == 1 %}selected{% endif %}>Fast Delivery</option>
+            <option value="0" {% if fast_delivery == 0 %}selected{% endif %}>Normal Delivery</option>
+        </select>
+
+        <select name="purchase_hour">
+            <option value="9" {% if purchase_hour == 9 %}selected{% endif %}>Morning</option>
+            <option value="14" {% if purchase_hour == 14 %}selected{% endif %}>Afternoon</option>
+            <option value="18" {% if purchase_hour == 18 %}selected{% endif %}>Evening</option>
+            <option value="22" {% if purchase_hour == 22 %}selected{% endif %}>Night</option>
+        </select>
+
+        <select name="purchase_day">
+            <option value="0" {% if purchase_day == 0 %}selected{% endif %}>Monday</option>
+            <option value="1" {% if purchase_day == 1 %}selected{% endif %}>Tuesday</option>
+            <option value="2" {% if purchase_day == 2 %}selected{% endif %}>Wednesday</option>
+            <option value="3" {% if purchase_day == 3 %}selected{% endif %}>Thursday</option>
+            <option value="4" {% if purchase_day == 4 %}selected{% endif %}>Friday</option>
+            <option value="5" {% if purchase_day == 5 %}selected{% endif %}>Saturday</option>
+            <option value="6" {% if purchase_day == 6 %}selected{% endif %}>Sunday</option>
+        </select>
+
+        <select name="purchase_month">
+            <option value="1" {% if purchase_month == 1 %}selected{% endif %}>Jan</option>
+            <option value="2" {% if purchase_month == 2 %}selected{% endif %}>Feb</option>
+            <option value="3" {% if purchase_month == 3 %}selected{% endif %}>Mar</option>
+            <option value="4" {% if purchase_month == 4 %}selected{% endif %}>Apr</option>
+            <option value="5" {% if purchase_month == 5 %}selected{% endif %}>May</option>
+            <option value="6" {% if purchase_month == 6 %}selected{% endif %}>Jun</option>
+            <option value="7" {% if purchase_month == 7 %}selected{% endif %}>Jul</option>
+            <option value="8" {% if purchase_month == 8 %}selected{% endif %}>Aug</option>
+            <option value="9" {% if purchase_month == 9 %}selected{% endif %}>Sep</option>
+            <option value="10" {% if purchase_month == 10 %}selected{% endif %}>Oct</option>
+            <option value="11" {% if purchase_month == 11 %}selected{% endif %}>Nov</option>
+            <option value="12" {% if purchase_month == 12 %}selected{% endif %}>Dec</option>
+        </select>
+
+        <button type="submit">Predict</button>
+        <button type="button" class="reset-btn" onclick="window.location.href='/'">Reset</button>
+
+    </form>
+
+    {% if prediction_text %}
+
+    <div class="dashboard">
+
+        <!-- Sentiment -->
+        <div class="section">
+            <h3>📊 Sentiment</h3>
+            <div class="progress">
+                <div class="progress-bar" style="width: {{probability}}%">
+                    {{probability}}%
+                </div>
+            </div>
+            <p style="color: {{color}}">{{ prediction_text }}</p>
+        </div>
+
+        <!-- Risk -->
+        <div class="section">
+            <h3>⚠️ Risk</h3>
+            <p>{{ risk }}</p>
+        </div>
+
+        <!-- Insights -->
+        <div class="section">
+            <h3>💡 Insights</h3>
+            <ul>
+                {% for item in insights %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+</div>
+
+</body>
+</html>
